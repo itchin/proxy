@@ -13,7 +13,7 @@ var Connection connection
 
 type connection struct{
     // domain => *conn
-    conns map[string]*net.Conn
+    conns map[string]net.Conn
 
     mu sync.RWMutex
 }
@@ -23,7 +23,7 @@ func (c *connection) Get(domain string) net.Conn {
     c.mu.Lock()
     defer c.mu.Unlock()
     if conn, ok := c.conns[domain]; ok {
-        return *conn
+        return conn
     }
     return nil
 }
@@ -39,10 +39,10 @@ func (c *connection) Open(domains []string, conn net.Conn) {
     }
 
     if c.conns == nil {
-        c.conns = make(map[string]*net.Conn)
+        c.conns = make(map[string]net.Conn)
     }
     for _, domain := range domains {
-        c.conns[domain] = &conn
+        c.conns[domain] = conn
     }
     c.mu.Unlock()
 }
@@ -66,9 +66,9 @@ func (c *connection) isExists(domains []string) (string, bool) {
 // 客户端断开连接时，将其从链接池移除
 func (c *connection) Close(conn net.Conn) {
     c.mu.Lock()
-    conns := make(map[string]*net.Conn)
+    conns := make(map[string]net.Conn)
     for k, v := range c.conns {
-        if *v != conn {
+        if v != conn {
             conns[k] = v
         }
     }
@@ -76,7 +76,7 @@ func (c *connection) Close(conn net.Conn) {
     c.mu.Unlock()
 }
 
-func (c *connection) All() map[string]*net.Conn {
+func (c *connection) All() map[string]net.Conn {
     c.mu.Lock()
     defer c.mu.Unlock()
     return c.conns

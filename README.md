@@ -8,14 +8,13 @@ https://github.com/itchin/proxy/releases
 
 ### 部署说明
 
-安装golang开发环境
+需安装golang开发环境
 
 ```
 git clone https://github.com/itchin/proxy
 
-go mod init github.com/itchin/proxy
-
-go mod tidy
+#下载所需组件
+go mod vendor
 
 #运行服务端
 go run runServer.go
