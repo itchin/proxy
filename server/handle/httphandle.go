@@ -1,6 +1,8 @@
 package handle
 
 import (
+    "github.com/itchin/proxy/server/process"
+    "github.com/itchin/proxy/utils/coding"
     "net/http"
 
     "github.com/itchin/proxy/server/parser"
@@ -14,16 +16,16 @@ type httpHandle struct{}
 func (h *httpHandle) Router(response http.ResponseWriter, request *http.Request) {
     go func() {
         domain := parser.Addr(request.Host)
-        conn := parser.Connection.Get(domain)
-        if conn == nil {
-            parser.RespChan <- &model.Response{
+        stream := parser.Streams.Get(domain)
+        if stream == nil {
+            process.RespChan <- &model.Response{
                 Body: "页面不存在",
             }
             return
         }
-        parser.HttpParser.Request(conn, domain, request)
+        parser.HttpParser.Request(stream, domain, request)
     }()
-    h.packet(&response, <- parser.RespChan, request.Host)
+    h.packet(&response, <- process.RespChan, request.Host)
 }
 
 func (*httpHandle) packet(response *http.ResponseWriter, remoteResp *model.Response, host string) {
@@ -32,5 +34,6 @@ func (*httpHandle) packet(response *http.ResponseWriter, remoteResp *model.Respo
         header.Set(k, v[0])
     }
     header.Set("Host", host)
-    (*response).Write([]byte(remoteResp.Body))
+    buf := coding.Decode([]byte(remoteResp.Body))
+    _, _ = (*response).Write(buf)
 }

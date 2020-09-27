@@ -21,6 +21,5 @@ message Request {
 
 // The response message containing the greetings
 message Response {
-    int32 type = 1;
     string data = 2;
 }

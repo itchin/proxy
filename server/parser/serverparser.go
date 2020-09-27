@@ -2,11 +2,10 @@ package parser
 
 import (
     "bytes"
+    "github.com/itchin/proxy/proto"
     "io"
-    "net"
     "net/http"
 
-    "github.com/itchin/proxy/utils/coding"
     "github.com/itchin/proxy/utils/model"
 )
 
@@ -14,7 +13,7 @@ var HttpParser httpParser
 
 type httpParser struct{}
 
-func (p *httpParser) Request(conn net.Conn,domain string, request *http.Request) {
+func (p *httpParser) Request(stream proto.Grpc_ProcessServer,domain string, request *http.Request) {
     req := model.Request{
         Domain: domain,
         Uri: request.RequestURI,
@@ -24,7 +23,7 @@ func (p *httpParser) Request(conn net.Conn,domain string, request *http.Request)
     }
     r, _ := req.MarshalJSON()
 
-    conn.Write(coding.Packet(r))
+    _ = stream.Send(&proto.Response{Data: string(r)})
 }
 
 func (*httpParser) getBody(body io.ReadCloser) string {
@@ -32,6 +31,6 @@ func (*httpParser) getBody(body io.ReadCloser) string {
         return ""
     }
     buf := new(bytes.Buffer)
-    buf.ReadFrom(body)
+    _, _ = buf.ReadFrom(body)
     return buf.String()
 }

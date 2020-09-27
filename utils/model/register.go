@@ -1,5 +1,5 @@
 package model
 
-type Open struct {
+type Register struct {
     Domains []string `json:"domains"`
 }
