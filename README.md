@@ -93,7 +93,7 @@ DOMAINS = {"domain.cn":"http://127.0.0.1:8080","api.domain.cn":"http://192.168.1
 ### 压力测试
 该项目v0.1.0版本实现tcp实现c/s模式，v0.2.0使用gRPC，与frp(https://github.com/fatedier/frp )进行压力测试对比。
 
-压测工具ab，并发100，请示数1000，这里只比较Requests per second；压测页面是一第3.2kb的html。
+压测工具ab，并发100，请示数1000，这里只比较Requests per second；压测页面是一个大小为3.2kb的html。
 
 ```
 frp：
