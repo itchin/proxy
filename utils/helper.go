@@ -1,7 +1,7 @@
 package utils
 
 import (
-    "fmt"
+    "log"
 )
 
 var CONSOLE_LOG bool
@@ -9,9 +9,9 @@ var CONSOLE_LOG bool
 func ConsoleLog(str string, args ...interface{}) {
     if CONSOLE_LOG {
         if len(args) > 0 {
-            fmt.Printf(str + "\n", args...)
+            log.Printf(str + "\n", args...)
         } else {
-            fmt.Println(str)
+            log.Println(str)
         }
     }
 }

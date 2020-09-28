@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson837ddf0cDecodeGithubComItchinProxyUtilModel(in *jlexer.Lexer, out *Open) {
+func easyjson763c86d3DecodeGithubComItchinProxyUtilsModel(in *jlexer.Lexer, out *Register) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -28,7 +28,7 @@ func easyjson837ddf0cDecodeGithubComItchinProxyUtilModel(in *jlexer.Lexer, out *
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeString()
+		key := in.UnsafeFieldName(false)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -69,7 +69,7 @@ func easyjson837ddf0cDecodeGithubComItchinProxyUtilModel(in *jlexer.Lexer, out *
 		in.Consumed()
 	}
 }
-func easyjson837ddf0cEncodeGithubComItchinProxyUtilModel(out *jwriter.Writer, in Open) {
+func easyjson763c86d3EncodeGithubComItchinProxyUtilsModel(out *jwriter.Writer, in Register) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -93,25 +93,25 @@ func easyjson837ddf0cEncodeGithubComItchinProxyUtilModel(out *jwriter.Writer, in
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v Open) MarshalJSON() ([]byte, error) {
+func (v Register) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson837ddf0cEncodeGithubComItchinProxyUtilModel(&w, v)
+	easyjson763c86d3EncodeGithubComItchinProxyUtilsModel(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v Open) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson837ddf0cEncodeGithubComItchinProxyUtilModel(w, v)
+func (v Register) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson763c86d3EncodeGithubComItchinProxyUtilsModel(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *Open) UnmarshalJSON(data []byte) error {
+func (v *Register) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson837ddf0cDecodeGithubComItchinProxyUtilModel(&r, v)
+	easyjson763c86d3DecodeGithubComItchinProxyUtilsModel(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *Open) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson837ddf0cDecodeGithubComItchinProxyUtilModel(l, v)
+func (v *Register) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson763c86d3DecodeGithubComItchinProxyUtilsModel(l, v)
 }

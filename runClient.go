@@ -1,25 +1,32 @@
 package main
 
 import (
+    "context"
     "fmt"
-    "net"
-
     "github.com/itchin/proxy/client/config"
     "github.com/itchin/proxy/client/parser"
+    "github.com/itchin/proxy/proto"
+    "google.golang.org/grpc"
 )
 
 func main() {
-    conn, err := net.Dial("tcp", config.TCP_HOST)
+    conn, err := grpc.Dial(config.TCP_HOST, grpc.WithInsecure())
     if err != nil {
         fmt.Printf("connect failed, err : %v\n", err.Error())
         return
     }
-    parser.Connection.Set(conn)
     defer conn.Close()
 
-    parser.TcpParser.Open()
+    // 声明客户端
+    client := proto.NewGrpcClient(conn)
+    // 声明上下文
+    ctx := context.Background()
+    stream, err := client.Process(ctx)
+    parser.Client.Set(stream)
 
-    go parser.TcpParser.Beat()
+    parser.ClientParser.Register()
 
-    parser.TcpParser.Listener()
+    go parser.ClientParser.Beat()
+
+    parser.ClientParser.Listener()
 }

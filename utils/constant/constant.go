@@ -1,6 +1,8 @@
 package constant
 
 const (
-    ON_OPEN = 1
-    ON_MESSAGE = 2
+    REGISTER = 0
+    BEAT = 1
+    LOG = 2
+    HTTP_PACKET = 3
 )
