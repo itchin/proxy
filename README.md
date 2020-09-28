@@ -8,13 +8,13 @@ https://github.com/itchin/proxy/releases
 
 ### 部署说明
 
-需安装golang开发环境
+需先安装golang开发环境，并设置服务端及客户端配置
 
 ```
 git clone https://github.com/itchin/proxy
 
 #下载所需组件
-go mod vendor
+go mod tidy
 
 #运行服务端
 go run runServer.go
@@ -23,24 +23,23 @@ go run runServer.go
 go run runClient.go
 ```
 
-### 服务端
+### 服务端配置
 
 复制 server.exam.ini 为 server.ini
 
 ```
 CONSOLE_LOG = false
-TCP_HOST = 0.0.0.0:9090
+GRPC_HOST = :9090
 HTTP_HOST = 0.0.0.0:9097
 ```
 
-### 客户端
+### 客户端配置
 
 复制 client.exam.ini 为 client.ini
 
 ```
 CONSOLE_LOG = false
-TCP_HOST = domain.cn:9090
+GRPC_HOST = domain.cn:9090
 GZIP_COMPRESSION = 5
 DOMAINS = {"domain.cn":"http://127.0.0.1:8080","api.domain.cn":"http://192.168.1.100"}
-HEARTBEAT = 60
 ```

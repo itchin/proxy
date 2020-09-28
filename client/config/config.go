@@ -13,7 +13,7 @@ var (
     // 是否在控制台中打印日志
     CONSOLE_LOG = true
 
-    TCP_HOST string
+    GRPC_HOST string
 
     // "远程域名": "本地协议://本地地址:端口"
     // 如：map[string]string{"api.me": "http://127.0.0.1:9000"}
@@ -50,7 +50,7 @@ func init() {
     }
     utils.CONSOLE_LOG = CONSOLE_LOG
 
-    TCP_HOST = section.Key("TCP_HOST").String()
+    GRPC_HOST = section.Key("GRPC_HOST").String()
 
     gzipCmpr, err := section.Key("GZIP_COMPRESSION").Int()
     if err == nil {

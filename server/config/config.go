@@ -12,7 +12,7 @@ var (
     // 是否在控制台中打印日志
     CONSOLE_LOG = true
 
-    TCP_HOST string
+    GRPC_HOST string
 
     HTTP_HOST string
 )
@@ -32,7 +32,7 @@ func init() {
     }
     utils.CONSOLE_LOG = CONSOLE_LOG
 
-    TCP_HOST = section.Key("TCP_HOST").String()
+    GRPC_HOST = section.Key("GRPC_HOST").String()
 
     HTTP_HOST = section.Key("HTTP_HOST").String()
 }

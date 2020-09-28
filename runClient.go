@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-    conn, err := grpc.Dial(config.TCP_HOST, grpc.WithInsecure())
+    conn, err := grpc.Dial(config.GRPC_HOST, grpc.WithInsecure())
     if err != nil {
         fmt.Printf("connect failed, err : %v\n", err.Error())
         return

@@ -19,7 +19,7 @@ func main() {
 
     proto.RegisterGrpcServer(server, &process.Streamer{})
 
-    listener, err := net.Listen("tcp", config.TCP_HOST)
+    listener, err := net.Listen("tcp", config.GRPC_HOST)
     if err != nil {
         panic(err)
     }
