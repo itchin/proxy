@@ -111,4 +111,4 @@ Requests per second:    26.24 [#/sec] (mean)
 Requests per second:    28.53 [#/sec] (mean)
 Requests per second:    21.98 [#/sec] (mean)
 ```
-与v0.1.0相比，使用gRPC后性能明显提升，测试结果甚至与frp相当，不过当我逐渐提升并发量进行测试时,程序就不稳定甚至宕机（本轮子没做并发优化，只实现功能自娱自乐），frp则依然稳定执行。
+与v0.1.0相比，使用gRPC后性能明显提升，测试结果甚至与frp相当，不过当我逐渐提升并发量进行测试时,程序就不稳定甚至宕机，frp则依然稳定执行。
