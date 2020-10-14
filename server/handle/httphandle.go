@@ -35,5 +35,6 @@ func (*httpHandle) packet(response *http.ResponseWriter, remoteResp *model.Respo
     }
     header.Set("Host", host)
     buf := coding.Decode([]byte(remoteResp.Body))
+    (*response).WriteHeader(remoteResp.StatusCode)
     _, _ = (*response).Write(buf)
 }

@@ -39,14 +39,14 @@ func (h *httpParser) Request(request *model.Request) (resp *model.Response, err 
     }
     defer response.Body.Close()
 
-    header := response.Header
     bodyByte, err := ioutil.ReadAll(response.Body)
     if err != nil {
         return
     }
 
     resp = new(model.Response)
-    resp.Header = header
+    resp.StatusCode = response.StatusCode
+    resp.Header = response.Header
     resp.Body = coding.Encode(bodyByte)
     return
 }

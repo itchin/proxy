@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson6ff3ac1dDecodeGithubComItchinProxyUtilModel(in *jlexer.Lexer, out *Response) {
+func easyjson6ff3ac1dDecodeGithubComItchinProxyUtilsModel(in *jlexer.Lexer, out *Response) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -28,7 +28,7 @@ func easyjson6ff3ac1dDecodeGithubComItchinProxyUtilModel(in *jlexer.Lexer, out *
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeString()
+		key := in.UnsafeFieldName(false)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -36,16 +36,14 @@ func easyjson6ff3ac1dDecodeGithubComItchinProxyUtilModel(in *jlexer.Lexer, out *
 			continue
 		}
 		switch key {
+		case "status_code":
+			out.StatusCode = int(in.Int())
 		case "header":
 			if in.IsNull() {
 				in.Skip()
 			} else {
 				in.Delim('{')
-				if !in.IsDelim('}') {
-					out.Header = make(map[string][]string)
-				} else {
-					out.Header = nil
-				}
+				out.Header = make(map[string][]string)
 				for !in.IsDelim('}') {
 					key := string(in.String())
 					in.WantColon()
@@ -89,13 +87,18 @@ func easyjson6ff3ac1dDecodeGithubComItchinProxyUtilModel(in *jlexer.Lexer, out *
 		in.Consumed()
 	}
 }
-func easyjson6ff3ac1dEncodeGithubComItchinProxyUtilModel(out *jwriter.Writer, in Response) {
+func easyjson6ff3ac1dEncodeGithubComItchinProxyUtilsModel(out *jwriter.Writer, in Response) {
 	out.RawByte('{')
 	first := true
 	_ = first
 	{
-		const prefix string = ",\"header\":"
+		const prefix string = ",\"status_code\":"
 		out.RawString(prefix[1:])
+		out.Int(int(in.StatusCode))
+	}
+	{
+		const prefix string = ",\"header\":"
+		out.RawString(prefix)
 		if in.Header == nil && (out.Flags&jwriter.NilMapAsEmpty) == 0 {
 			out.RawString(`null`)
 		} else {
@@ -136,23 +139,23 @@ func easyjson6ff3ac1dEncodeGithubComItchinProxyUtilModel(out *jwriter.Writer, in
 // MarshalJSON supports json.Marshaler interface
 func (v Response) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson6ff3ac1dEncodeGithubComItchinProxyUtilModel(&w, v)
+	easyjson6ff3ac1dEncodeGithubComItchinProxyUtilsModel(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Response) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6ff3ac1dEncodeGithubComItchinProxyUtilModel(w, v)
+	easyjson6ff3ac1dEncodeGithubComItchinProxyUtilsModel(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Response) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson6ff3ac1dDecodeGithubComItchinProxyUtilModel(&r, v)
+	easyjson6ff3ac1dDecodeGithubComItchinProxyUtilsModel(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Response) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6ff3ac1dDecodeGithubComItchinProxyUtilModel(l, v)
+	easyjson6ff3ac1dDecodeGithubComItchinProxyUtilsModel(l, v)
 }
