@@ -4,16 +4,18 @@ import (
     "bytes"
     "github.com/itchin/proxy/proto"
     "io"
+    "log"
     "net/http"
 
     "github.com/itchin/proxy/utils/model"
 )
 
-var HttpParser httpParser
+var ServerParser serverParser
 
-type httpParser struct{}
+type serverParser struct{}
 
-func (p *httpParser) Request(stream proto.Grpc_ProcessServer,domain string, request *http.Request) {
+// 将请求头转发到内网服务器
+func (p *serverParser) Request(stream proto.Grpc_ProcessServer,domain string, request *http.Request) {
     req := model.Request{
         Domain: domain,
         Uri: request.RequestURI,
@@ -23,10 +25,13 @@ func (p *httpParser) Request(stream proto.Grpc_ProcessServer,domain string, requ
     }
     r, _ := req.MarshalJSON()
 
-    _ = stream.Send(&proto.Response{Data: string(r)})
+    err := stream.Send(&proto.Response{Data: string(r)})
+    if err != nil {
+        log.Println("grpc error, send msg fail:", err)
+    }
 }
 
-func (*httpParser) getBody(body io.ReadCloser) string {
+func (*serverParser) getBody(body io.ReadCloser) string {
     if body == nil {
         return ""
     }

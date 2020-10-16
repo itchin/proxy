@@ -1,13 +1,14 @@
 package parser
 
 import (
-    "io/ioutil"
-    "net/http"
-    "strings"
-
     "github.com/itchin/proxy/client/config"
     "github.com/itchin/proxy/utils/coding"
     "github.com/itchin/proxy/utils/model"
+    "io/ioutil"
+    "log"
+    "net/http"
+    "strings"
+    "time"
 )
 
 var HttpParser httpParser
@@ -32,15 +33,19 @@ func (h *httpParser) Request(request *model.Request) (resp *model.Response, err 
         req.Header.Set(k, v[0])
     }
 
-    client := new(http.Client)
+    client := &http.Client{
+        Timeout: time.Duration(30 * time.Second),
+    }
     response, err := client.Do(req)
     if err != nil {
+        log.Println("http error:", err, "status code:", response.StatusCode, "request path:", locDomain + request.Uri)
         return
     }
     defer response.Body.Close()
 
     bodyByte, err := ioutil.ReadAll(response.Body)
     if err != nil {
+        log.Println("read http response body error")
         return
     }
 
