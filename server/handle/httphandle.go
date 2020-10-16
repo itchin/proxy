@@ -23,7 +23,7 @@ func (h *httpHandle) Router(response http.ResponseWriter, request *http.Request)
             }
             return
         }
-        parser.HttpParser.Request(stream, domain, request)
+        parser.ServerParser.Request(stream, domain, request)
     }()
     h.packet(&response, <- process.RespChan, request.Host)
 }
