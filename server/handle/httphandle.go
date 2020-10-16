@@ -14,17 +14,15 @@ var HttpHandle httpHandle
 type httpHandle struct{}
 
 func (h *httpHandle) Router(response http.ResponseWriter, request *http.Request) {
-    go func() {
-        domain := parser.Addr(request.Host)
-        stream := parser.Streams.Get(domain)
-        if stream == nil {
-            process.RespChan <- &model.Response{
-                Body: "页面不存在",
-            }
-            return
+    domain := parser.Addr(request.Host)
+    stream := parser.Streams.Get(domain)
+    if stream == nil {
+        process.RespChan <- &model.Response{
+            Body: "页面不存在",
         }
-        parser.ServerParser.Request(stream, domain, request)
-    }()
+        return
+    }
+    parser.ServerParser.Request(stream, domain, request)
     h.packet(&response, <- process.RespChan, request.Host)
 }
 
