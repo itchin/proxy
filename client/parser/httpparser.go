@@ -33,9 +33,16 @@ func (h *httpParser) Request(request *model.Request) (resp *model.Response, err 
         req.Header.Set(k, v[0])
     }
 
-    client := &http.Client{
-        Timeout: time.Duration(30 * time.Second),
+    var client *http.Client
+    if config.HTTP_TIMEOUT > 0 {
+        client = &http.Client{
+            Timeout: time.Duration(30 * time.Second),
+        }
+    } else {
+        client = &http.Client{}
     }
+
+
     response, err := client.Do(req)
     if err != nil {
         log.Println("http error:", err, "status code:", response.StatusCode, "request path:", locDomain + request.Uri)

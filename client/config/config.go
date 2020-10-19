@@ -23,7 +23,10 @@ var (
     GZIP_COMPRESSION = 5
 
     // 心跳包间隔时间(秒)
-    HEARTBEAT = 60
+    HEARTBEAT = 0
+
+    // HTTP超时(秒)
+    HTTP_TIMEOUT = 30
 )
 
 func init() {
@@ -61,5 +64,10 @@ func init() {
     heartBeat, err := section.Key("HEARTBEAT").Int()
     if err == nil && heartBeat > 0 {
         HEARTBEAT = heartBeat
+    }
+
+    httpTimeout, err := section.Key("HTTP_TIMEOUT").Int()
+    if err == nil && httpTimeout >= 0 {
+        HTTP_TIMEOUT = httpTimeout
     }
 }

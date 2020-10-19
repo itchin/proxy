@@ -23,15 +23,15 @@ func (h *httpHandle) Router(response http.ResponseWriter, request *http.Request)
         return
     }
     parser.ServerParser.Request(stream, domain, request)
-    h.packet(&response, <- process.RespChan, request.Host)
+    h.packet(&response, <- process.RespChan, request)
 }
 
-func (*httpHandle) packet(response *http.ResponseWriter, remoteResp *model.Response, host string) {
+func (*httpHandle) packet(response *http.ResponseWriter, remoteResp *model.Response, request *http.Request) {
     header := (*response).Header()
     for k, v := range remoteResp.Header {
         header.Set(k, v[0])
     }
-    header.Set("Host", host)
+    header.Set("Host", request.Host)
     buf := coding.Decode([]byte(remoteResp.Body))
     (*response).WriteHeader(remoteResp.StatusCode)
     _, _ = (*response).Write(buf)
