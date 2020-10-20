@@ -65,11 +65,11 @@ func (c *streams) Close(stream proto.Grpc_ProcessServer) {
     c.mu.Lock()
     for k, v := range c.m {
         if v == stream {
-            c.mu.Lock()
             delete(c.m, k)
-            c.mu.Unlock()
+            break
         }
     }
+    c.mu.Unlock()
 }
 
 func (c *streams) All() map[string]proto.Grpc_ProcessServer {

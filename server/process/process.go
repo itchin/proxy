@@ -4,6 +4,7 @@ import (
     "github.com/itchin/proxy/proto"
     "github.com/itchin/proxy/utils/model"
     "io"
+    "log"
 
     "github.com/itchin/proxy/server/parser"
     "github.com/itchin/proxy/utils"
@@ -19,14 +20,14 @@ func (s *Streamer) Process(stream proto.Grpc_ProcessServer) error {
         req, err := stream.Recv()
         if err == io.EOF {
             parser.Streams.Close(stream)
-            utils.ConsoleLog("EOF")
-            utils.ConsoleLog("当前链接：%v", parser.Streams.All())
+            log.Println("EOF")
+            log.Println("当前链接:", parser.Streams.All())
             return nil
         }
         if err != nil {
+            log.Println("read from connect failed, err: %v", err)
             parser.Streams.Close(stream)
-            utils.ConsoleLog("read from connect failed, err: %v", err)
-            utils.ConsoleLog("当前链接：%v", parser.Streams.All())
+            log.Println("当前链接:", parser.Streams.All())
             return err
         }
 
