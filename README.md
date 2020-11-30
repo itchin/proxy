@@ -91,9 +91,11 @@ DOMAINS = {"domain.cn":"http://127.0.0.1:8080","api.domain.cn":"http://192.168.1
 ```
 
 ### 压力测试
-该项目v0.1.0版本使用tcp实现c/s模式，v0.2.0使用gRPC，与frp(https://github.com/fatedier/frp )进行压力测试对比。
+与frp(https://github.com/fatedier/frp )进行压力测试对比，分别部署内网穿透服务端及客服端后，对内网服务器的某个http站点进行压测。
 
-分别部署内网穿透服务端及客服端后，对内网服务器的某个http站点进行压测。压测工具ab，并发100，请示数1000，这里只比较Requests per second；压测页面是一个大小为3.2kb的html。
+压测工具ab，压测页面是一个大小为3.2kb的html，这里只贴上Requests per second这项数据。
+
+并发100，请示数1000；
 
 ```
 frp：
@@ -110,5 +112,18 @@ proxy(v0.1.0)
 Requests per second:    26.24 [#/sec] (mean)
 Requests per second:    28.53 [#/sec] (mean)
 Requests per second:    21.98 [#/sec] (mean)
+```
+
+并发100，请示数1000；
+```
+frp:
+Requests per second:    131.19 [#/sec] (mean)
+Requests per second:    128.39 [#/sec] (mean)
+Requests per second:    111.74 [#/sec] (mean)
+
+proxy:
+Requests per second:    95.16 [#/sec] (mean)
+Requests per second:    89.68 [#/sec] (mean)
+Requests per second:    121.06 [#/sec] (mean)
 ```
 与v0.1.0相比，使用gRPC后性能明显提升，测试结果甚至与frp相当，不过当我逐渐提升并发量进行测试时,程序就不稳定甚至宕机，frp则依然稳定执行。

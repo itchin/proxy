@@ -11,22 +11,20 @@ import (
     "github.com/itchin/proxy/utils/model"
 )
 
-var ClientParser clientParser
-
-type clientParser struct{}
+type ClientParser struct{}
 
 // 建立链接后向服务端注册域名
-func (*clientParser) Register() {
+func (c *ClientParser) Register(workerId int) {
     r := new(model.Register)
     r.Domains = getDomains()
     data, _ := r.MarshalJSON()
-    Client.Write(constant.REGISTER, string(data))
+    Client.Write(workerId, constant.REGISTER, string(data))
 }
 
-func (c *clientParser) Listener() {
+func (c *ClientParser) Listener(workerId int) {
     for {
         // 接收从服务端返回的数据流
-        resp, err := Client.stream.Recv()
+        resp, err := Client.stream[workerId].Recv()
         if err == io.EOF {
             log.Println("EOF...")
             break
@@ -37,12 +35,12 @@ func (c *clientParser) Listener() {
         }
 
         // 处理来自服务端的消息
-        c.Message(resp.Data)
+        c.Message(workerId, resp.Data)
     }
 }
 
 // 处理从服务端转发的http请求
-func (c *clientParser) Message(data string) {
+func (c *ClientParser) Message(workerId int, data string) {
     request := new(model.Request)
     utils.ConsoleLog(data)
     request.UnmarshalJSON([]byte(data))
@@ -54,24 +52,24 @@ func (c *clientParser) Message(data string) {
         utils.ConsoleLog("err: %v", response, err)
         return
     }
-    c.sendResponse(response)
+    c.sendResponse(workerId, response)
 }
 
 // 将http response发送回tcp服务端
-func (*clientParser) sendResponse(response *model.Response) {
+func (c *ClientParser) sendResponse(workerId int, response *model.Response) {
     data, _ := response.MarshalJSON()
-    Client.Write(constant.HTTP_PACKET, string(data))
+    Client.Write(workerId, constant.HTTP_PACKET, string(data))
 }
 
 
-func (*clientParser) Beat() {
+func (*ClientParser) Beat(workerId int) {
     heartbeat := config.HEARTBEAT
     if heartbeat > 0 {
         ticker := time.NewTicker(time.Second * time.Duration(heartbeat))
         for {
             select {
             case <- ticker.C:
-                Client.Write(constant.BEAT, "")
+                Client.Write(workerId, constant.BEAT, "")
             }
         }
     }

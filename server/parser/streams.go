@@ -2,24 +2,45 @@ package parser
 
 import (
     "github.com/itchin/proxy/proto"
-    "strings"
     "sync"
-
-    "github.com/itchin/proxy/utils"
 )
 
 var Streams streams
 
+type conn struct {
+    streams []proto.Grpc_ProcessServer
+    curr int
+    length int
+}
+
+// 指向下一个连接
+func (c *conn) next() {
+    if c.curr >= c.length - 1 {
+        c.curr = 0
+    } else {
+        c.curr++
+    }
+}
+
 type streams struct{
-    // domain => stream
-    m map[string]proto.Grpc_ProcessServer
+    // domain => conn
+    dc map[string]*conn
+    sd map[proto.Grpc_ProcessServer]string
     mu sync.RWMutex
+}
+
+func init() {
+    Streams.dc = make(map[string]*conn)
+    Streams.sd = make(map[proto.Grpc_ProcessServer]string)
 }
 
 // 获取域名对应的链接
 func (s *streams) Get(domain string) proto.Grpc_ProcessServer {
     s.mu.Lock()
-    if stream, ok := s.m[domain]; ok {
+    if conn, ok := s.dc[domain]; ok {
+        // 轮询使用连接对象
+        conn.next()
+        stream := conn.streams[conn.curr]
         s.mu.Unlock()
         return stream
     }
@@ -29,51 +50,46 @@ func (s *streams) Get(domain string) proto.Grpc_ProcessServer {
 // 建立连接后，将域名与grpc流对象绑定
 func (s *streams) Register(domains []string, stream proto.Grpc_ProcessServer) {
     s.mu.Lock()
-    if str, isExists := s.isExists(domains); isExists {
-        s.mu.Unlock()
-        utils.ConsoleLog(str)
-        return
-    }
-
-    if s.m == nil {
-        s.m = make(map[string]proto.Grpc_ProcessServer)
-    }
     for _, domain := range domains {
-        s.m[domain] = stream
+        s.sd[stream] = domain
+        // 初始化
+        if _, ok := s.dc[domain]; !ok {
+            s.dc[domain] = new(conn)
+            s.dc[domain].streams = make([]proto.Grpc_ProcessServer, 0)
+        }
+        c := s.dc[domain]
+        c.streams = append(c.streams, stream)
+        c.length ++
     }
     s.mu.Unlock()
 }
 
-// 判断客户端请求注册的host，是否已存在于服务端注册信息中
-func (c *streams) isExists(domains []string) (string, bool) {
-    dms := make([]string, 0)
-    for _, domain := range domains {
-        dm := domain
-        if _, ok := c.m[dm]; ok {
-            dms = append(dms, dm)
-        }
-    }
-    if len(dms) > 0 {
-        str := "操作失败，以下Host已在服务器中注册：" + strings.Join(dms, ",")
-        return str, true
-    }
-    return "", false
-}
-
 // 客户端断开连接时，将其从链接池移除
-func (c *streams) Close(stream proto.Grpc_ProcessServer) {
-    c.mu.Lock()
-    for k, v := range c.m {
-        if v == stream {
-            delete(c.m, k)
-            break
-        }
+func (s *streams) Close(stream proto.Grpc_ProcessServer) string {
+    s.mu.Lock()
+    domain := s.sd[stream]
+    delete(s.sd, stream)
+    c := s.dc[domain]
+    for k, v := range c.streams {
+       if v == stream {
+           if c.length == 1 {
+               delete(s.dc, domain)
+           } else if c.length == k + 1 {
+               c.streams = append(c.streams[0:k - 1])
+               c.length --
+           } else {
+               c.streams = append(c.streams[0:k], c.streams[k + 1:]...)
+               c.length --
+           }
+           break
+       }
     }
-    c.mu.Unlock()
+    s.mu.Unlock()
+    return domain
 }
 
-func (c *streams) All() map[string]proto.Grpc_ProcessServer {
-    c.mu.Lock()
-    defer c.mu.Unlock()
-    return c.m
+func (s *streams) All() map[string]*conn {
+    s.mu.Lock()
+    defer s.mu.Unlock()
+    return s.dc
 }

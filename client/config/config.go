@@ -10,6 +10,9 @@ import (
 )
 
 var (
+    // 协程连接数
+    WORKERS = 10
+
     // 是否在控制台中打印日志
     CONSOLE_LOG = true
 
@@ -45,6 +48,11 @@ func init() {
     if err != nil {
         fmt.Println("DOMAINS配置解析失败")
         panic(err)
+    }
+
+    workers, err := section.Key("WORKERS").Int()
+    if err == nil {
+        WORKERS = workers
     }
 
     consoleLog, err := section.Key("CONSOLE_LOG").Bool()

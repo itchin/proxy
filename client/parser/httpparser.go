@@ -15,6 +15,18 @@ var HttpParser httpParser
 
 type httpParser struct{}
 
+var cli *http.Client
+
+func init() {
+    if config.HTTP_TIMEOUT > 0 {
+        cli = &http.Client{
+            Timeout: time.Duration(time.Duration(config.HTTP_TIMEOUT) * time.Second),
+        }
+    } else {
+        cli = &http.Client{}
+    }
+}
+
 func (h *httpParser) Request(request *model.Request) (resp *model.Response, err error) {
     var locDomain string
     if val, ok := config.DOMAINS[request.Domain]; ok {
@@ -33,19 +45,9 @@ func (h *httpParser) Request(request *model.Request) (resp *model.Response, err 
         req.Header.Set(k, v[0])
     }
 
-    var client *http.Client
-    if config.HTTP_TIMEOUT > 0 {
-        client = &http.Client{
-            Timeout: time.Duration(30 * time.Second),
-        }
-    } else {
-        client = &http.Client{}
-    }
-
-
-    response, err := client.Do(req)
+    response, err := cli.Do(req)
     if err != nil {
-        log.Println("http error:", err, "status code:", response.StatusCode, "request path:", locDomain + request.Uri)
+        log.Println("http error:", err, "request path:", locDomain + request.Uri)
         return
     }
     defer response.Body.Close()
@@ -57,6 +59,7 @@ func (h *httpParser) Request(request *model.Request) (resp *model.Response, err 
     }
 
     resp = new(model.Response)
+    resp.HttpId = request.HttpId
     resp.StatusCode = response.StatusCode
     resp.Header = response.Header
     resp.Body = coding.Encode(bodyByte)

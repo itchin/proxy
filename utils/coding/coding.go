@@ -9,8 +9,8 @@ func Encode(buf []byte) string {
     return base64.StdEncoding.EncodeToString(gzipCode)
 }
 
-func Decode(code []byte) []byte {
+func Decode(code []byte) (buf []byte, err error) {
     gzipCode, _ := base64.StdEncoding.DecodeString(string(code))
-    buf, _ := GzipDecode(gzipCode)
-    return buf
+    buf, err = GzipDecode(gzipCode)
+    return
 }
