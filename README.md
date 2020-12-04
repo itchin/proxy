@@ -41,5 +41,5 @@ HTTP_HOST = 0.0.0.0:9097
 CONSOLE_LOG = false
 GRPC_HOST = domain.cn:9090
 GZIP_COMPRESSION = 5
-DOMAINS = {"domain.cn":"http://127.0.0.1:8080","api.domain.cn":"http://192.168.1.100"}
+DOMAINS = {"www.domain.cn":"http://127.0.0.1:8080","api.domain.cn":"http://192.168.1.100"}
 ```
