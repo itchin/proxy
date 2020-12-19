@@ -9,6 +9,9 @@ import (
 )
 
 var (
+    MAX_CONN = 1024
+
+    MAX_ACTIVE = 20
     // 是否在控制台中打印日志
     CONSOLE_LOG = true
 
@@ -25,6 +28,16 @@ func init() {
     }
 
     section := cfg.Section("")
+
+    maxConn, err := section.Key("MAX_CONN").Int()
+    if err == nil {
+        MAX_CONN = maxConn
+    }
+
+    maxActive, err := section.Key("MAX_ACTIVE").Int()
+    if err == nil {
+        MAX_ACTIVE = maxActive
+    }
 
     consoleLog, err := section.Key("CONSOLE_LOG").Bool()
     if err == nil {

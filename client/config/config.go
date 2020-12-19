@@ -2,16 +2,16 @@ package config
 
 import (
     "fmt"
+    "github.com/itchin/proxy/utils/coding"
 
     "github.com/itchin/proxy/utils"
-    "github.com/itchin/proxy/utils/coding"
     jsoniter "github.com/json-iterator/go"
     "gopkg.in/ini.v1"
 )
 
 var (
     // 协程连接数
-    WORKERS = 10
+    WORKERS = 5
 
     // 是否在控制台中打印日志
     CONSOLE_LOG = true

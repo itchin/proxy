@@ -3,6 +3,7 @@ package parser
 import (
     "io"
     "log"
+    "sync"
     "time"
 
     "github.com/itchin/proxy/client/config"
@@ -11,20 +12,23 @@ import (
     "github.com/itchin/proxy/utils/model"
 )
 
-type ClientParser struct{}
+type GrpcParser struct{}
+
+var i int
+var mu sync.Mutex
 
 // 建立链接后向服务端注册域名
-func (c *ClientParser) Register(workerId int) {
+func (c *GrpcParser) Register(workerId int) {
     r := new(model.Register)
     r.Domains = getDomains()
     data, _ := r.MarshalJSON()
-    Client.Write(workerId, constant.REGISTER, string(data))
+    GrpcClient.Write(workerId, constant.REGISTER, string(data))
 }
 
-func (c *ClientParser) Listener(workerId int) {
+func (c *GrpcParser) Listener(workerId int) {
     for {
         // 接收从服务端返回的数据流
-        resp, err := Client.stream[workerId].Recv()
+        resp, err := GrpcClient.stream[workerId].Recv()
         if err == io.EOF {
             log.Println("EOF...")
             break
@@ -40,7 +44,10 @@ func (c *ClientParser) Listener(workerId int) {
 }
 
 // 处理从服务端转发的http请求
-func (c *ClientParser) Message(workerId int, data string) {
+func (c *GrpcParser) Message(workerId int, data string) {
+    mu.Lock()
+    i++
+    mu.Unlock()
     request := new(model.Request)
     utils.ConsoleLog(data)
     request.UnmarshalJSON([]byte(data))
@@ -56,20 +63,20 @@ func (c *ClientParser) Message(workerId int, data string) {
 }
 
 // 将http response发送回tcp服务端
-func (c *ClientParser) sendResponse(workerId int, response *model.Response) {
+func (c *GrpcParser) sendResponse(workerId int, response *model.Response) {
     data, _ := response.MarshalJSON()
-    Client.Write(workerId, constant.HTTP_PACKET, string(data))
+    GrpcClient.Write(workerId, constant.HTTP_PACKET, string(data))
 }
 
 
-func (*ClientParser) Beat(workerId int) {
+func (*GrpcParser) Beat(workerId int) {
     heartbeat := config.HEARTBEAT
     if heartbeat > 0 {
         ticker := time.NewTicker(time.Second * time.Duration(heartbeat))
         for {
             select {
             case <- ticker.C:
-                Client.Write(workerId, constant.BEAT, "")
+                GrpcClient.Write(workerId, constant.BEAT, "")
             }
         }
     }

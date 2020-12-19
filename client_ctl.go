@@ -24,9 +24,9 @@ func main() {
             // 声明上下文
             ctx := context.Background()
             stream, err := client.Process(ctx)
-            parser.Client.Set(workerId, stream)
+            parser.GrpcClient.Set(workerId, stream)
 
-            var clientParser parser.ClientParser
+            var clientParser parser.GrpcParser
 
             clientParser.Register(workerId)
 
