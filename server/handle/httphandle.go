@@ -1,6 +1,7 @@
 package handle
 
 import (
+    "github.com/itchin/proxy/utils"
     "github.com/itchin/proxy/utils/coding"
     cmap "github.com/orcaman/concurrent-map"
     "log"
@@ -27,12 +28,13 @@ func init() {
 
 func (h *httpHandle) Router(rw http.ResponseWriter, request *http.Request) {
     h.mu.Lock()
+    seq := Capacity.Shift()
     httpId := strconv.Itoa(h.httpId)
     h.CMap.Set(httpId, make(chan *model.Response))
     h.httpId++
     h.mu.Unlock()
 
-    domain := parser.Addr(request.Host)
+    domain := utils.Addr(request.Host)
     stream := parser.Streams.Get(domain)
     if stream == nil {
         c, _ := h.CMap.Get(httpId)
@@ -45,7 +47,7 @@ func (h *httpHandle) Router(rw http.ResponseWriter, request *http.Request) {
     }
 
     remoteResp := h.listener(httpId)
-    h.responseHandle(remoteResp, &rw, request)
+    h.responseHandle(remoteResp, &rw, request, seq)
 }
 
 func (h *httpHandle) listener(httpId string) (remoteResp *model.Response) {
@@ -57,7 +59,7 @@ func (h *httpHandle) listener(httpId string) (remoteResp *model.Response) {
     return
 }
 
-func (h *httpHandle) responseHandle(remoteResp *model.Response, rw *http.ResponseWriter, request *http.Request) {
+func (h *httpHandle) responseHandle(remoteResp *model.Response, rw *http.ResponseWriter, request *http.Request, seq int) {
     for k, v := range remoteResp.Header {
         (*rw).Header().Set(k, v[0])
     }
@@ -69,9 +71,7 @@ func (h *httpHandle) responseHandle(remoteResp *model.Response, rw *http.Respons
     (*rw).WriteHeader(remoteResp.StatusCode)
     _, err = (*rw).Write(buf)
     if err != nil {
-        //result := fmt.Sprintf("%+v", (*rw))
-        //log.Println("结构体2：", result)
         log.Println("ResponseWriter error:", err)
-        log.Println()
     }
+    Capacity.Push(seq)
 }
