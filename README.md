@@ -28,9 +28,13 @@ go run runClient.go
 复制 server.exam.ini 为 server.ini
 
 ```
+# HTTP服务器最大连接数
+MAX_CONN = 1024
+# 最大活跃协程数量
+MAX_ACTIVE = 20
 CONSOLE_LOG = false
+HTTP_HOST = 0.0.0.0:80
 GRPC_HOST = :9090
-HTTP_HOST = 0.0.0.0:9097
 ```
 
 ### 客户端配置
@@ -38,8 +42,12 @@ HTTP_HOST = 0.0.0.0:9097
 复制 client.exam.ini 为 client.ini
 
 ```
-CONSOLE_LOG = false
+WORKERS = 5
 GRPC_HOST = domain.cn:9090
+HTTP_TIMEOUT = 30
+CONSOLE_LOG = false
 GZIP_COMPRESSION = 5
-DOMAINS = {"www.domain.cn":"http://127.0.0.1:8080","api.domain.cn":"http://192.168.1.100"}
+DOMAINS = {"domain.cn":"http://127.0.0.1:8080","api.domain.cn":"http://192.168.1.100"}
+HEARTBEAT = 0
+HTTP_TIMEOUT = 30
 ```
