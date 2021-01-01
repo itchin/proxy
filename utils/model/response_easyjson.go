@@ -37,7 +37,7 @@ func easyjson6ff3ac1dDecodeGithubComItchinProxyUtilsModel(in *jlexer.Lexer, out 
 		}
 		switch key {
 		case "http_id":
-			out.HttpId = string(in.String())
+			out.HttpId = int(in.Int())
 		case "status_code":
 			out.StatusCode = int(in.Int())
 		case "header":
@@ -96,7 +96,7 @@ func easyjson6ff3ac1dEncodeGithubComItchinProxyUtilsModel(out *jwriter.Writer, i
 	{
 		const prefix string = ",\"http_id\":"
 		out.RawString(prefix[1:])
-		out.String(string(in.HttpId))
+		out.Int(int(in.HttpId))
 	}
 	{
 		const prefix string = ",\"status_code\":"

@@ -11,20 +11,26 @@ import (
     "time"
 )
 
-var HttpParser httpParser
+type httpParser struct {
+    Cli *http.Client
+}
 
-type httpParser struct{}
-
-var cli *http.Client
-
-func init() {
+func NewHttpParser() *httpParser {
+    log.Println("create a new HttpParser")
+    hp := new(httpParser)
     if config.HTTP_TIMEOUT > 0 {
-        cli = &http.Client{
-            Timeout: time.Duration(time.Duration(config.HTTP_TIMEOUT) * time.Second),
-        }
+       tr := &http.Transport{
+           MaxIdleConns: 100,
+           MaxIdleConnsPerHost: 2,
+       }
+       hp.Cli = &http.Client{
+           Timeout: time.Duration(time.Duration(config.HTTP_TIMEOUT) * time.Second),
+           Transport: tr,
+       }
     } else {
-        cli = &http.Client{}
+        hp.Cli = &http.Client{}
     }
+    return hp
 }
 
 func (h *httpParser) Request(request *model.Request) (resp *model.Response, err error) {
@@ -45,7 +51,7 @@ func (h *httpParser) Request(request *model.Request) (resp *model.Response, err 
         req.Header.Set(k, v[0])
     }
 
-    response, err := cli.Do(req)
+    response, err := h.Cli.Do(req)
     if err != nil {
         log.Println("http error:", err, "request path:", locDomain + request.Uri)
         return

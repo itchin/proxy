@@ -9,11 +9,12 @@ import (
 var GrpcClient grpcClient
 
 type grpcClient struct{
-    mu sync.Mutex
+    mu *sync.Mutex
     stream map[int]proto.Grpc_ProcessClient
 }
 
 func init()  {
+    GrpcClient.mu = &sync.Mutex{}
     GrpcClient.stream = make(map[int]proto.Grpc_ProcessClient)
 }
 

@@ -1,12 +1,11 @@
 package handle
 
 import (
+    "github.com/itchin/proxy/server/config"
     "github.com/itchin/proxy/utils"
     "github.com/itchin/proxy/utils/coding"
-    cmap "github.com/orcaman/concurrent-map"
     "log"
     "net/http"
-    "strconv"
     "sync"
 
     "github.com/itchin/proxy/server/parser"
@@ -16,46 +15,44 @@ import (
 var HttpHandle httpHandle
 
 type httpHandle struct {
-    // response映射表
-    CMap cmap.ConcurrentMap
-    mu sync.Mutex
-    httpId int
+    Chans []chan *model.Response
+    mu *sync.Mutex
 }
 
 func init() {
-    HttpHandle.CMap = cmap.New()
+    HttpHandle.mu = &sync.Mutex{}
+    HttpHandle.Chans = make([]chan *model.Response, config.MAX_ACTIVE)
+    for i := 0; i < config.MAX_ACTIVE; i++ {
+        HttpHandle.Chans[i] = make(chan *model.Response)
+    }
 }
 
 func (h *httpHandle) Router(rw http.ResponseWriter, request *http.Request) {
     h.mu.Lock()
     seq := Capacity.Shift()
-    httpId := strconv.Itoa(h.httpId)
-    h.CMap.Set(httpId, make(chan *model.Response))
-    h.httpId++
     h.mu.Unlock()
 
     domain := utils.Addr(request.Host)
     stream := parser.Streams.Get(domain)
     if stream == nil {
-        c, _ := h.CMap.Get(httpId)
-        c.(chan *model.Response) <- &model.Response{
+        h.mu.Lock()
+        c := h.Chans[seq]
+        h.mu.Unlock()
+        c <- &model.Response{
             Body: "页面不存在",
         }
         return
     } else {
-        parser.ServerParser.Request(httpId, stream, domain, request)
+        parser.ServerParser.Request(seq, stream, domain, request)
     }
 
-    remoteResp := h.listener(httpId)
+    remoteResp := h.listener(seq)
     h.responseHandle(remoteResp, &rw, request, seq)
 }
 
-func (h *httpHandle) listener(httpId string) (remoteResp *model.Response) {
-    ci, _ := h.CMap.Get(httpId)
-    c := ci.(chan *model.Response)
+func (h *httpHandle) listener(httpId int) (remoteResp *model.Response) {
+    c := h.Chans[httpId]
     remoteResp = <- c
-    close(c)
-    h.CMap.Remove(httpId)
     return
 }
 

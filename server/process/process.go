@@ -9,9 +9,12 @@ import (
     "github.com/itchin/proxy/utils/model"
     "io"
     "log"
+    "sync"
 )
 
 type Streamer struct{}
+
+var mu = &sync.Mutex{}
 
 func (s *Streamer) Process(stream proto.Grpc_ProcessServer) error {
     for {
@@ -25,7 +28,7 @@ func (s *Streamer) Process(stream proto.Grpc_ProcessServer) error {
         if err != nil {
             log.Println("read from connect failed, err:", err)
             parser.Streams.Close(stream)
-            log.Println("当前链接数:", parser.Streams.All())
+            //log.Println("当前链接数:", parser.Streams.All())
             return err
         }
 
@@ -34,8 +37,10 @@ func (s *Streamer) Process(stream proto.Grpc_ProcessServer) error {
             utils.ConsoleLog("receive: %v", req)
             response := new(model.Response)
             _ = response.UnmarshalJSON([]byte(req.Data))
-            c, _ := handle.HttpHandle.CMap.Get(response.HttpId)
-            c.(chan *model.Response) <- response
+            mu.Lock()
+            c := handle.HttpHandle.Chans[response.HttpId]
+            mu.Unlock()
+            c <- response
 
         // 注册域名与stream对象的映射
         case constant.REGISTER:

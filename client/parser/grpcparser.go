@@ -3,7 +3,6 @@ package parser
 import (
     "io"
     "log"
-    "sync"
     "time"
 
     "github.com/itchin/proxy/client/config"
@@ -12,10 +11,9 @@ import (
     "github.com/itchin/proxy/utils/model"
 )
 
-type GrpcParser struct{}
-
-var i int
-var mu sync.Mutex
+type GrpcParser struct {
+    hp *httpParser
+}
 
 // 建立链接后向服务端注册域名
 func (c *GrpcParser) Register(workerId int) {
@@ -45,16 +43,16 @@ func (c *GrpcParser) Listener(workerId int) {
 
 // 处理从服务端转发的http请求
 func (c *GrpcParser) Message(workerId int, data string) {
-    mu.Lock()
-    i++
-    mu.Unlock()
     request := new(model.Request)
     utils.ConsoleLog(data)
-    request.UnmarshalJSON([]byte(data))
+    _ = request.UnmarshalJSON([]byte(data))
     if request.Domain == "" {
         return
     }
-    response, err := HttpParser.Request(request)
+    if c.hp == nil {
+        c.hp = NewHttpParser()
+    }
+    response, err := c.hp.Request(request)
     if err != nil {
         utils.ConsoleLog("err: %v", response, err)
         return

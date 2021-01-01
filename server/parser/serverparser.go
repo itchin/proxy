@@ -14,7 +14,7 @@ var ServerParser serverParser
 type serverParser struct {}
 
 // 将请求头转发到内网服务器
-func (p *serverParser) Request(httpId string,stream proto.Grpc_ProcessServer,  domain string, request *http.Request) {
+func (p *serverParser) Request(httpId int, stream proto.Grpc_ProcessServer, domain string, request *http.Request) {
     req := model.Request{
         HttpId: httpId,
         Domain: domain,
