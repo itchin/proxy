@@ -14,7 +14,7 @@ https://github.com/itchin/proxy/releases
 git clone https://github.com/itchin/proxy
 
 #下载所需组件
-go mod tidy
+go mod vendor
 
 #运行服务端
 go run runServer.go
