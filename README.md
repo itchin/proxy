@@ -17,10 +17,10 @@ git clone https://github.com/itchin/proxy
 go mod vendor
 
 #运行服务端
-go run runServer.go
+go run server_ctl.go
 
 #运行客户端
-go run runClient.go
+go run client_ctl.go
 ```
 
 ### 服务端配置
@@ -49,5 +49,4 @@ CONSOLE_LOG = false
 GZIP_COMPRESSION = 5
 DOMAINS = {"domain.cn":"http://127.0.0.1:8080","api.domain.cn":"http://192.168.1.100"}
 HEARTBEAT = 0
-HTTP_TIMEOUT = 30
 ```
