@@ -5,12 +5,14 @@ import (
 )
 
 func Encode(buf []byte) string {
-    gzipCode, _ := GzipEncode(buf)
-    return base64.StdEncoding.EncodeToString(gzipCode)
+    buf, _ = GzipEncode(buf)
+    return base64.StdEncoding.EncodeToString(buf)
 }
 
-func Decode(code []byte) (buf []byte, err error) {
-    gzipCode, _ := base64.StdEncoding.DecodeString(string(code))
-    buf, err = GzipDecode(gzipCode)
+func Decode(code []byte, gzip bool) (buf []byte, err error) {
+    buf, _ = base64.StdEncoding.DecodeString(string(code))
+    if gzip {
+        buf, err = GzipDecode(buf)
+    }
     return
 }

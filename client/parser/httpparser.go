@@ -16,7 +16,6 @@ type httpParser struct {
 }
 
 func NewHttpParser() *httpParser {
-    log.Println("create a new HttpParser")
     hp := new(httpParser)
     if config.HTTP_TIMEOUT > 0 {
        tr := &http.Transport{
@@ -66,6 +65,7 @@ func (h *httpParser) Request(request *model.Request) (resp *model.Response, err 
 
     resp = new(model.Response)
     resp.HttpId = request.HttpId
+    resp.Gzip = config.GZIP_COMPRESSION != 0
     resp.StatusCode = response.StatusCode
     resp.Header = response.Header
     resp.Body = coding.Encode(bodyByte)

@@ -46,7 +46,8 @@ WORKERS = 5
 GRPC_HOST = domain.cn:9090
 HTTP_TIMEOUT = 30
 CONSOLE_LOG = false
-GZIP_COMPRESSION = 5
+# GZIP压缩，0~9，0为关闭
+GZIP_COMPRESSION = 0
 DOMAINS = {"domain.cn":"http://127.0.0.1:8080","api.domain.cn":"http://192.168.1.100"}
 HEARTBEAT = 0
 ```

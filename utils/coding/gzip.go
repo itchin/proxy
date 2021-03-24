@@ -9,6 +9,10 @@ import (
 var GZIP_COMPRESSION = 5
 
 func GzipEncode(in []byte) ([]byte, error) {
+    if GZIP_COMPRESSION == 0 {
+        return in, nil
+    }
+
     var (
         buf bytes.Buffer
         out    []byte

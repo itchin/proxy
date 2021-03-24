@@ -38,6 +38,8 @@ func easyjson6ff3ac1dDecodeGithubComItchinProxyUtilsModel(in *jlexer.Lexer, out 
 		switch key {
 		case "http_id":
 			out.HttpId = int(in.Int())
+		case "gzip_level":
+			out.Gzip = bool(in.Bool())
 		case "status_code":
 			out.StatusCode = int(in.Int())
 		case "header":
@@ -97,6 +99,11 @@ func easyjson6ff3ac1dEncodeGithubComItchinProxyUtilsModel(out *jwriter.Writer, i
 		const prefix string = ",\"http_id\":"
 		out.RawString(prefix[1:])
 		out.Int(int(in.HttpId))
+	}
+	{
+		const prefix string = ",\"gzip_level\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.Gzip))
 	}
 	{
 		const prefix string = ",\"status_code\":"

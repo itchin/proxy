@@ -61,7 +61,7 @@ func (h *httpHandle) responseHandle(remoteResp *model.Response, rw *http.Respons
         (*rw).Header().Set(k, v[0])
     }
     (*rw).Header().Set("Host", request.Host)
-    buf, err := coding.Decode([]byte(remoteResp.Body))
+    buf, err := coding.Decode([]byte(remoteResp.Body), remoteResp.Gzip)
     if err != nil {
         log.Println("decode error:", err)
     }
