@@ -12,6 +12,9 @@ var (
     MAX_CONN = 1024
 
     MAX_ACTIVE = 20
+
+    HTTP_TIMEOUT = 30
+
     // 是否在控制台中打印日志
     CONSOLE_LOG = true
 
@@ -37,6 +40,11 @@ func init() {
     maxActive, err := section.Key("MAX_ACTIVE").Int()
     if err == nil {
         MAX_ACTIVE = maxActive
+    }
+
+    httpTimeout, err := section.Key("HTTP_TIMEOUT").Int()
+    if err == nil {
+        HTTP_TIMEOUT = httpTimeout
     }
 
     consoleLog, err := section.Key("CONSOLE_LOG").Bool()

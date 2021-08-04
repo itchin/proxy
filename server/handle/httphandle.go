@@ -1,15 +1,16 @@
 package handle
 
 import (
+    "context"
     "github.com/itchin/proxy/server/config"
+    "github.com/itchin/proxy/server/parser"
     "github.com/itchin/proxy/utils"
     "github.com/itchin/proxy/utils/coding"
+    "github.com/itchin/proxy/utils/model"
     "log"
     "net/http"
     "sync"
-
-    "github.com/itchin/proxy/server/parser"
-    "github.com/itchin/proxy/utils/model"
+    "time"
 )
 
 var HttpHandle httpHandle
@@ -39,20 +40,47 @@ func (h *httpHandle) Router(rw http.ResponseWriter, request *http.Request) {
         c := h.Chans[seq]
         h.mu.Unlock()
         c <- &model.Response{
+            StatusCode: 404,
             Body: "页面不存在",
         }
+        Capacity.Push(seq)
         return
     } else {
         parser.ServerParser.Request(seq, stream, domain, request)
     }
 
     remoteResp := h.listener(seq)
+    if remoteResp.Header == nil {
+        h.mu.Lock()
+        c := h.Chans[seq]
+        h.mu.Unlock()
+        c <- remoteResp
+        Capacity.Push(seq)
+        return
+    }
     h.responseHandle(remoteResp, &rw, request, seq)
 }
 
 func (h *httpHandle) listener(httpId int) (remoteResp *model.Response) {
     c := h.Chans[httpId]
-    remoteResp = <- c
+    ctx, cancel := context.WithTimeout(context.Background(), time.Duration(config.HTTP_TIMEOUT) * time.Second)
+    var wg sync.WaitGroup
+    wg.Add(1)
+    go func() {
+        select {
+        case <- ctx.Done():
+            remoteResp = &model.Response{
+                StatusCode: 408,
+                Body: "请求超时",
+            }
+            wg.Done()
+        default:
+            remoteResp = <- c
+            cancel()
+            wg.Done()
+        }
+    }()
+    wg.Wait()
     return
 }
 
