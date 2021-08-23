@@ -32,7 +32,7 @@ go run client_ctl.go
 MAX_CONN = 1024
 # 最大活跃协程数量
 MAX_ACTIVE = 20
-# http请求过期时间(秒)
+# HTTP请求过期时间(秒)
 HTTP_TIMEOUT = 30
 CONSOLE_LOG = false
 HTTP_HOST = 0.0.0.0:80

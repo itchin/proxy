@@ -29,9 +29,7 @@ func init() {
 }
 
 func (h *httpHandle) Router(rw http.ResponseWriter, request *http.Request) {
-    h.mu.Lock()
     seq := Capacity.Shift()
-    h.mu.Unlock()
 
     domain := utils.Addr(request.Host)
     stream := parser.Streams.Get(domain)
