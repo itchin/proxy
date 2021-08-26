@@ -17,11 +17,11 @@ var HttpHandle httpHandle
 
 type httpHandle struct {
     Chans []chan *model.Response
-    mu *sync.Mutex
+    mu *sync.RWMutex
 }
 
 func init() {
-    HttpHandle.mu = &sync.Mutex{}
+    HttpHandle.mu = &sync.RWMutex{}
     HttpHandle.Chans = make([]chan *model.Response, config.MAX_ACTIVE)
     for i := 0; i < config.MAX_ACTIVE; i++ {
         HttpHandle.Chans[i] = make(chan *model.Response)

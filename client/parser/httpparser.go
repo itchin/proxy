@@ -55,9 +55,9 @@ func (h *httpParser) Request(request *model.Request) (resp *model.Response, err 
         log.Println("http error:", err, "request path:", locDomain + request.Uri)
         return
     }
-    defer response.Body.Close()
 
     bodyByte, err := ioutil.ReadAll(response.Body)
+    response.Body.Close()
     if err != nil {
         log.Println("read http response body error")
         return
