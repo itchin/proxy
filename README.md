@@ -31,7 +31,7 @@ go run client_ctl.go
 # HTTP服务器最大连接数
 MAX_CONN = 1024
 # 最大活跃协程数量
-MAX_ACTIVE = 20
+MAX_ACTIVE = 100
 # HTTP请求过期时间(秒)
 HTTP_TIMEOUT = 30
 CONSOLE_LOG = false
@@ -44,7 +44,7 @@ GRPC_HOST = :9090
 复制 client.exam.ini 为 client.ini
 
 ```
-WORKERS = 5
+WORKERS = 10
 GRPC_HOST = domain.cn:9090
 HTTP_TIMEOUT = 30
 CONSOLE_LOG = false
