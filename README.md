@@ -50,6 +50,7 @@ HTTP_TIMEOUT = 30
 CONSOLE_LOG = false
 # GZIP压缩，0~9，0为关闭
 GZIP_COMPRESSION = 0
+# 配置远程服务器域名及本地服务的映射关系
 DOMAINS = {"domain.cn":"http://127.0.0.1:8080","api.domain.cn":"http://192.168.1.100"}
 HEARTBEAT = 0
 ```
