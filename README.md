@@ -3,24 +3,21 @@
 
 ### 二进制下载
 
+无需安装golang开发环境，直接下载使用
+
 https://github.com/itchin/proxy/releases
 
 
-### 部署说明
+### 编译安装
 
-需先安装golang开发环境，并设置服务端及客户端配置
+需先安装、配置golang开发环境
 
 ```
+#下载本项目
 git clone https://github.com/itchin/proxy
 
 #下载所需组件
 go mod vendor
-
-#运行服务端
-go run server_ctl.go
-
-#运行客户端
-go run client_ctl.go
 ```
 
 ### 服务端配置
@@ -53,4 +50,14 @@ GZIP_COMPRESSION = 0
 # 配置远程服务器域名及本地服务的映射关系
 DOMAINS = {"domain.cn":"http://127.0.0.1:8080","api.domain.cn":"http://192.168.1.100"}
 HEARTBEAT = 0
+```
+
+### 启动项目
+
+```
+#运行服务端
+go run server_ctl.go
+
+#运行客户端
+go run client_ctl.go
 ```
