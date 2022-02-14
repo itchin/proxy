@@ -28,23 +28,28 @@ func init() {
     }
 }
 
+//路由器入口
 func (h *httpHandle) Router(rw http.ResponseWriter, request *http.Request) {
     seq := Capacity.Shift()
 
     domain := utils.Addr(request.Host)
     stream := parser.Streams.Get(domain)
     if stream == nil {
+        //如果域名为空指向，返回404
         h.mu.Lock()
         c := h.Chans[seq]
         h.mu.Unlock()
-        c <- &model.Response{
+        c <- &model.Response {
             StatusCode: 404,
             Body: "页面不存在",
         }
         Capacity.Push(seq)
         return
     } else {
-        parser.ServerParser.Request(seq, stream, domain, request)
+        err := parser.ServerParser.Request(seq, stream, domain, request)
+        if err != nil {
+            log.Println("请求失败：", err)
+        }
     }
 
     remoteResp := h.listener(seq)

@@ -14,7 +14,7 @@ var ServerParser serverParser
 type serverParser struct {}
 
 // 将请求头转发到内网服务器
-func (p *serverParser) Request(httpId int, stream proto.Grpc_ProcessServer, domain string, request *http.Request) {
+func (p *serverParser) Request(httpId int, stream proto.Grpc_ProcessServer, domain string, request *http.Request) (err error) {
     req := model.Request{
         HttpId: httpId,
         Domain: domain,
@@ -23,19 +23,29 @@ func (p *serverParser) Request(httpId int, stream proto.Grpc_ProcessServer, doma
         Header: request.Header,
         Body: p.getBody(request.Body),
     }
-    r, _ := req.MarshalJSON()
+    r, err := req.MarshalJSON()
+    if err != nil {
+        log.Println("marshl json error：", err)
+        return
+    }
 
-    err := stream.Send(&proto.Response{Data: string(r)})
+    err = stream.Send(&proto.Response{Data: string(r)})
     if err != nil {
         log.Println("grpc error, send msg fail:", err)
     }
+    return
 }
 
+//将http body的内容转为字符串格式
 func (*serverParser) getBody(body io.ReadCloser) string {
     if body == nil {
         return ""
     }
     buf := new(bytes.Buffer)
-    _, _ = buf.ReadFrom(body)
+    _, err := buf.ReadFrom(body)
+    if err != nil {
+        log.Println(err)
+        return ""
+    }
     return buf.String()
 }
