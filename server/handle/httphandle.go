@@ -67,23 +67,16 @@ func (h *httpHandle) Router(rw http.ResponseWriter, request *http.Request) {
 func (h *httpHandle) listener(httpId int) (remoteResp *model.Response) {
     c := h.Chans[httpId]
     ctx, cancel := context.WithTimeout(context.Background(), time.Duration(config.HTTP_TIMEOUT) * time.Second)
-    var wg sync.WaitGroup
-    wg.Add(1)
-    go func() {
-        select {
-        case <- ctx.Done():
-            remoteResp = &model.Response{
-                StatusCode: 408,
-                Body: "请求超时",
-            }
-            wg.Done()
-        default:
-            remoteResp = <- c
-            cancel()
-            wg.Done()
+    select {
+    case <- ctx.Done():
+        remoteResp = &model.Response{
+            StatusCode: 408,
+            Body: "请求超时",
         }
-    }()
-    wg.Wait()
+    default:
+        remoteResp = <- c
+        cancel()
+    }
     return
 }
 
