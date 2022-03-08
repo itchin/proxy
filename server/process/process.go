@@ -14,10 +14,11 @@ import (
 
 type Streamer struct{}
 
-var mu = &sync.Mutex{}
+var mu = &sync.RWMutex{}
 
 func (s *Streamer) Process(stream proto.Grpc_ProcessServer) error {
     for {
+        //调用远程代码执行后返回值
         req, err := stream.Recv()
         if err == io.EOF {
             log.Println("EOF")
@@ -32,14 +33,16 @@ func (s *Streamer) Process(stream proto.Grpc_ProcessServer) error {
             return err
         }
 
+        //根据定义的返回值类型匹配逻辑
         switch req.Type {
+        //返回http响应
         case constant.HTTP_PACKET:
             utils.ConsoleLog("receive: %v", req)
             response := new(model.Response)
             _ = response.UnmarshalJSON([]byte(req.Data))
-            mu.Lock()
+            mu.RLock()
             c := handle.HttpHandle.Chans[response.HttpId]
-            mu.Unlock()
+            mu.RUnlock()
             c <- response
 
         // 注册域名与stream对象的映射

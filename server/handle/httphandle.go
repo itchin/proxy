@@ -22,6 +22,7 @@ type httpHandle struct {
 
 func init() {
     HttpHandle.mu = &sync.RWMutex{}
+    //使用channel控制活跃协程数量
     HttpHandle.Chans = make([]chan *model.Response, config.MAX_ACTIVE)
     for i := 0; i < config.MAX_ACTIVE; i++ {
         HttpHandle.Chans[i] = make(chan *model.Response)
@@ -36,9 +37,9 @@ func (h *httpHandle) Router(rw http.ResponseWriter, request *http.Request) {
     stream := parser.Streams.Get(domain)
     if stream == nil {
         //如果域名为空指向，返回404
-        h.mu.Lock()
+        h.mu.RLock()
         c := h.Chans[seq]
-        h.mu.Unlock()
+        h.mu.RUnlock()
         c <- &model.Response {
             StatusCode: 404,
             Body: "页面不存在",
@@ -54,9 +55,9 @@ func (h *httpHandle) Router(rw http.ResponseWriter, request *http.Request) {
 
     remoteResp := h.listener(seq)
     if remoteResp.Header == nil {
-        h.mu.Lock()
+        h.mu.RLock()
         c := h.Chans[seq]
-        h.mu.Unlock()
+        h.mu.RUnlock()
         c <- remoteResp
         Capacity.Push(seq)
         return
@@ -64,6 +65,7 @@ func (h *httpHandle) Router(rw http.ResponseWriter, request *http.Request) {
     h.responseHandle(remoteResp, &rw, request, seq)
 }
 
+//监听远程http响应
 func (h *httpHandle) listener(httpId int) (remoteResp *model.Response) {
     c := h.Chans[httpId]
     ctx, cancel := context.WithTimeout(context.Background(), time.Duration(config.HTTP_TIMEOUT) * time.Second)
@@ -80,6 +82,7 @@ func (h *httpHandle) listener(httpId int) (remoteResp *model.Response) {
     return
 }
 
+//解析响应的http，替换header
 func (h *httpHandle) responseHandle(remoteResp *model.Response, rw *http.ResponseWriter, request *http.Request, seq int) {
     for k, v := range remoteResp.Header {
         (*rw).Header().Set(k, v[0])

@@ -36,12 +36,12 @@ func init() {
 
 // 获取域名对应的链接
 func (s *streams) Get(domain string) proto.Grpc_ProcessServer {
-    s.mu.Lock()
+    s.mu.RLock()
+    defer s.mu.RUnlock()
     if conn, ok := s.dc[domain]; ok {
         // 轮询使用连接对象
         conn.next()
         stream := conn.streams[conn.curr]
-        s.mu.Unlock()
         return stream
     }
     return nil
@@ -89,7 +89,7 @@ func (s *streams) Close(stream proto.Grpc_ProcessServer) string {
 }
 
 func (s *streams) All() map[string]*conn {
-    s.mu.Lock()
-    defer s.mu.Unlock()
+    s.mu.RLock()
+    defer s.mu.RUnlock()
     return s.dc
 }
